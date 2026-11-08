@@ -1,0 +1,17 @@
+
+{
+  "name": "belajar-mi-by-arya",
+  "version": "2.0.0-beta.1",
+  "private": true,
+  "description": "BELAJAR MI by Arya Android app",
+  "scripts": {
+    "build:android": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
+  }
+}
