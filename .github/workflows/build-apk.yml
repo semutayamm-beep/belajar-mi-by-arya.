@@ -12,6 +12,7 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -30,10 +31,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Prepare web files
+        run: |
+          test -f index.html
+          mkdir -p www/assets
+          cp index.html www/
+          if [ -f manifest.json ]; then cp manifest.json www/; fi
+          if [ -f sw.js ]; then cp sw.js www/; fi
+          if [ -d assets ]; then cp -R assets/. www/assets/; fi
+
       - name: Create Android project
         run: npx cap add android
 
-      - name: Sync web app to Android
+      - name: Sync web app
         run: npx cap sync android
 
       - name: Build debug APK
@@ -43,6 +53,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BELAJAR-MI-by-Arya-debug-APK
+          name: BELAJAR-MI-by-Arya-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
