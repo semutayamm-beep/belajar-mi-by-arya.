@@ -1,6 +1,25 @@
 <!doctype html>
 <html lang="id">
-<head>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCjXh93Ev2LOE9QH-1eeEZ9wxP9rVT1Kic",
+  authDomain: "belajar-mi-arya.firebaseapp.com",
+  projectId: "belajar-mi-arya",
+  storageBucket: "belajar-mi-arya.firebasestorage.app",
+  messagingSenderId: "969734473377",
+  appId: "1:969734473377:web:c153a5caae36c24ae652e0",
+  measurementId: "G-36VG305VPQ"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07152f"><meta name="description" content="Belajar MI by.arya — AI belajar, bahasa Inggris, dan kalkulator.">
 <link rel="manifest" href="manifest.json">
