@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout source
@@ -28,11 +28,6 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.11.1
 
       - name: Prepare web files
         run: |
@@ -67,11 +62,31 @@ jobs:
       - name: Sync web app
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.11.1
+
+      - name: Build APK with retry
         working-directory: android
+        shell: bash
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
         run: |
           chmod +x gradlew
-          gradle --no-daemon assembleDebug
+
+          for attempt in 1 2 3; do
+            echo "Build attempt $attempt"
+
+            if gradle --no-daemon assembleDebug; then
+              exit 0
+            fi
+
+            echo "Build gagal. Menunggu sebelum mencoba lagi."
+            sleep 30
+          done
+
+          exit 1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
