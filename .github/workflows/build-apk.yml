@@ -1,3 +1,4 @@
+
 name: Build BELAJAR MI Android APK
 
 on:
@@ -11,6 +12,7 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout source
@@ -27,14 +29,14 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Prepare project
+      - name: Prepare web files
         run: |
           if [ -f index.html ]; then
             cp index.html /tmp/index.html
           elif [ -f Index.html ]; then
             cp Index.html /tmp/index.html
           else
-            echo "File HTML tidak ditemukan"
+            echo "HTML tidak ditemukan"
             exit 1
           fi
 
@@ -47,13 +49,8 @@ jobs:
             cp -R Assets/. www/assets/
           fi
 
-          if [ -f manifest.json ]; then
-            cp manifest.json www/
-          fi
-
-          if [ -f sw.js ]; then
-            cp sw.js www/
-          fi
+          if [ -f manifest.json ]; then cp manifest.json www/; fi
+          if [ -f sw.js ]; then cp sw.js www/; fi
 
       - name: Install Capacitor
         run: |
@@ -68,13 +65,14 @@ jobs:
       - name: Sync web app
         run: npx cap sync android
 
-      - name: Use smaller Gradle download
-        run: |
-          sed -i 's/-all.zip/-bin.zip/' android/gradle/wrapper/gradle-wrapper.properties
-
       - name: Build debug APK
         working-directory: android
-        run: chmod +x gradlew && ./gradlew assembleDebug
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
+        run: |
+          chmod +x gradlew
+          sed -i 's/networkTimeout=10000/networkTimeout=120000/' gradle/wrapper/gradle-wrapper.properties
+          ./gradlew --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
