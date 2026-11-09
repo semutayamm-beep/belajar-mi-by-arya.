@@ -1,4 +1,3 @@
-
 name: Build BELAJAR MI Android APK
 
 on:
@@ -28,23 +27,50 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Prepare web files
+      - name: Prepare project
         run: |
-          test -f index.html
+          if [ -f index.html ]; then
+            cp index.html /tmp/index.html
+          elif [ -f Index.html ]; then
+            cp Index.html /tmp/index.html
+          else
+            echo "File HTML tidak ditemukan"
+            exit 1
+          fi
+
           mkdir -p www/assets
-          cp index.html www/
-          if [ -f manifest.json ]; then cp manifest.json www/; fi
-          if [ -f sw.js ]; then cp sw.js www/; fi
-          if [ -d assets ]; then cp -R assets/. www/assets/; fi
+          cp /tmp/index.html www/index.html
+
+          if [ -d assets ]; then
+            cp -R assets/. www/assets/
+          elif [ -d Assets ]; then
+            cp -R Assets/. www/assets/
+          fi
+
+          if [ -f manifest.json ]; then
+            cp manifest.json www/
+          fi
+
+          if [ -f sw.js ]; then
+            cp sw.js www/
+          fi
+
+      - name: Install Capacitor
+        run: |
+          npm init -y
+          npm install @capacitor/core @capacitor/android @capacitor/cli
 
       - name: Create Android project
-        run: npx cap add android
+        run: |
+          npx cap init "Belajar MI by Arya" "com.arya.belajarmi" --web-dir www
+          npx cap add android
 
       - name: Sync web app
         run: npx cap sync android
+
+      - name: Use smaller Gradle download
+        run: |
+          sed -i 's/-all.zip/-bin.zip/' android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Build debug APK
         working-directory: android
@@ -56,3 +82,4 @@ jobs:
           name: BELAJAR-MI-by-Arya-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          
